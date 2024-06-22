@@ -1,0 +1,9 @@
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p1.pddl,0.295,0.293,0.001,0.001,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p2.pddl,0.259,0.198,0.021,0.04,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p3.pddl,0.483,0.212,0.042,0.229,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p4.pddl,1.875,0.237,0.117,1.521,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p5.pddl,8.854,0.268,0.256,8.33,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p6.pddl,29.594,0.303,0.556,28.735,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p7.pddl,207.831,0.336,1.227,206.268,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p8.pddl,837.283,0.388,2.589,834.306,1
+./../../Benchmarks/TriangleTireWorld/domain_triange.pddl,./../../Benchmarks/TriangleTireWorld/p9.pddl,987.695,0.441,4.661,982.593,1
