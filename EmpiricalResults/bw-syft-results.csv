@@ -1,6 +1,0 @@
-./../../Benchmarks/BlocksWorld/domain.pddl,./../../Benchmarks/BlocksWorld/p1.pddl,0.182,0.182,0,0,1
-./../../Benchmarks/BlocksWorld/domain.pddl,./../../Benchmarks/BlocksWorld/p2.pddl,0.278,0.276,0.001,0.001,1
-./../../Benchmarks/BlocksWorld/domain.pddl,./../../Benchmarks/BlocksWorld/p3.pddl,0.525,0.454,0.012,0.059,1
-./../../Benchmarks/BlocksWorld/domain.pddl,./../../Benchmarks/BlocksWorld/p4.pddl,0.564,0.206,0.023,0.335,1
-./../../Benchmarks/BlocksWorld/domain.pddl,./../../Benchmarks/BlocksWorld/p5.pddl,22.631,0.236,0.059,22.336,1
-./../../Benchmarks/BlocksWorld/domain.pddl,./../../Benchmarks/BlocksWorld/p6.pddl,328.475,0.236,0.094,328.145,1

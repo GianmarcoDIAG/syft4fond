@@ -1,7 +1,0 @@
-./../../Benchmarks/Elevators/domain.pddl,./../../Benchmarks/Elevators/p01.pddl,2.117,0.202,0.023,1.892,1
-./../../Benchmarks/Elevators/domain.pddl,./../../Benchmarks/Elevators/p02.pddl,0.464,0.217,0.02,0.227,1
-./../../Benchmarks/Elevators/domain.pddl,./../../Benchmarks/Elevators/p03.pddl,3.593,0.219,0.023,3.351,1
-./../../Benchmarks/Elevators/domain.pddl,./../../Benchmarks/Elevators/p04.pddl,1.198,0.212,0.021,0.965,1
-./../../Benchmarks/Elevators/domain.pddl,./../../Benchmarks/Elevators/p05.pddl,3.508,0.212,0.024,3.272,1
-./../../Benchmarks/Elevators/domain.pddl,./../../Benchmarks/Elevators/p06.pddl,72.261,0.252,0.047,71.962,1
-./../../Benchmarks/Elevators/domain.pddl,./../../Benchmarks/Elevators/p07.pddl,101.981,0.22,0.046,101.715,1
