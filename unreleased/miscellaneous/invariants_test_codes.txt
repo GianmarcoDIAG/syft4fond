@@ -1,0 +1,44 @@
+// construct invariant BDD
+        // print_domain();
+        // test. 4 blocks
+        // Invariant inv_1({4, 5, 6, 7, 8}, {});
+        // Invariant inv_2({6, 13, 14, 15, 16, 26}, {});
+        // Invariant inv_3({7, 17, 18, 19, 20, 27}, {});
+        // Invariant inv_4({8, 21, 22, 23, 24, 28}, {});
+        // Invariant inv_5({5, 9, 10, 11, 12, 25}, {});
+        // add_invariant(inv_1);
+        // add_invariant(inv_2);
+        // add_invariant(inv_3);
+        // add_invariant(inv_4);
+        // add_invariant(inv_5);
+
+        // test. 5 blocks
+        // Invariant inv_1({5, 6, 7, 8, 9, 10}, {});
+        // Invariant inv_2({6, 11, 12, 13, 14, 15, 36}, {});
+        // Invariant inv_3({7, 16, 17, 18, 19, 20, 37}, {});
+        // Invariant inv_4({8, 21, 22, 23, 24, 25, 38}, {});
+        // Invariant inv_5({9, 26, 27, 28, 29, 30, 39}, {});
+        // Invariant inv_6({10, 31, 32, 33, 34, 35, 40}, {});
+        // add_invariant(inv_1);
+        // add_invariant(inv_2);
+        // add_invariant(inv_3);
+        // add_invariant(inv_4);
+        // add_invariant(inv_5);
+        // add_invariant(inv_6);
+
+        // test. 6 blocks
+        // Invariant inv_1({6, 7, 8, 9, 10, 11, 12}, {});
+        // Invariant inv_2({7, 13, 14, 15, 16, 17, 18, 49}, {});
+        // Invariant inv_3({8, 19, 20, 21, 22, 23, 24, 25, 50}, {});
+        // Invariant inv_4({9, 25, 26, 27, 28, 29, 30, 51}, {});
+        // Invariant inv_5({10, 31, 32, 33, 34, 35, 36, 52}, {});
+        // Invariant inv_6({11, 37, 38, 39, 40, 41, 42, 53}, {});
+        // Invariant inv_7({12, 43, 44, 45, 46, 47, 48, 54}, {});
+
+        // add_invariant(inv_1);
+        // add_invariant(inv_2);
+        // add_invariant(inv_3);
+        // add_invariant(inv_4);
+        // add_invariant(inv_5);
+        // add_invariant(inv_6);
+        // add_invariant(inv_7);
