@@ -149,8 +149,6 @@ sudo make install
 
 ### Lydia:
 
-Unzip the repository and move into it `cd BeSyft`
-
 Clone Lydia within the submodules folder.
 
 ```
@@ -158,8 +156,6 @@ git clone https://github.com/whitemech/lydia.git --recursive
 ```
 
 ### Building
-
-To build, run the following commands.
 
 ```
 mkdir build && cd build
