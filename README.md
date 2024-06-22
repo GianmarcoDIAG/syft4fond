@@ -1,66 +1,64 @@
-# BeSyft
+# PDDL2DFA and Syft4FOND
 
-BeSyft is a tool for symbolic best-effort synthesis with LTLf goals and assumptions. The tool has been described in [1].
+PDDL2DFA is a tool for translating PDDL into DFA. Syft4FOND is a tool for reducing FOND strong planning to symbolic DFA game synthesis.
 
 # Usage
 
-The output of `BeSyft --help` is the following:
+The output of `./pddl2dfa --help` is:
 
 ```
-BeSyft: a tool for Reactive and Best-Effort Synthesis with LTLf Goals and Assumptions
-Usage: ./BeSyft [OPTIONS]
+pddl2dfa: a tool to convert PDDL planning domain specifications into DFAs
+
+
+Usage: ./pddl2dfa [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
-  -d,--print-dot              Print the output function(s)
-  -c,--dominance-check        Performs the dominance check
-  -i,--interactive            Executes the synthesized strategy in interactive mode
-  -a,--agent-file TEXT:FILE REQUIRED
-                              File to agent specification
-  -e,--environment-file TEXT:FILE REQUIRED
-                              File to environment assumption
-  -p,--partition-file TEXT:FILE REQUIRED
-                              File to partition
-  -s,--starting-player INT REQUIRED
-                              Starting player:
-                              agent=1;
-                              environment=0.
-  -t,--algorithm INT REQUIRED Specifies algorithm to use:
-                              Direct Best-Effort Synthesis=1;
-                              Compositional-Minimal Best-Effort Synthesis=2;
-                              Compositional Best-Effort Synthesis=3;
-                              Compositional-Minimal Reactive Synthesis=4
-                              Compositional Reactive Synthesis=5
-  -f,--save-results TEXT      If specified, save results in the passed file. Stores:
-                              Algorithm;
-                              Goal file;
-                              Environment file;
-                              Starting player;
-                              LTLf2DFA (s);
-                              DFA2Sym (s);
-                              Adv Game (s);
-                              Coop Game (s); 	#best-effort synthesis algorithms only
-                              Dominance Test (s); 	# best-effort synthesis algorithms only with -c option
-                              Run time(s);
-                              Realizability;
-                              Dominance;	#best-effort synthesis algorithms only with -c option
+  -d,--domain-file TEXT:FILE REQUIRED
+                              Path to PDDL domain file
+  -p,--problem-file TEXT:FILE REQUIRED
+                              Path to PDDL problem file
+  -a,--alg INT REQUIRED       Conversion algorithm.
+                              	0: PDDL -> LTLf -> DFA
+                              	1: PDDL -> DFA
+  -o,--out-file TEXT          Path to output csv file. Stores:
+                              1. PDDL domain file
+                              2. PDDL problem file
+                              3. Run time (secs)
+                              4. PDDL parsing (secs)
+                              5. Size of DFA (with --alg==1 only)
+                              6. Number of actions (with --alg==1 only)
+                              7. Nodes in BDDs (with --alg==1 only)
+  -i,--interactive BOOLEAN    Executes interactively the domain DFA (with --alg==1 only)
+  -t,--print-domain BOOLEAN   Prints the domain
 ```
 
-LTLf formulas in agent and environment files should be written in Lydia's syntax. For further details, refer to https://github.com/whitemech/lydia . 
-
-To perform best-effort synthesis for an LTLf goal in some LTLf environment, you have to provide both the path to the agent goal and the environment specification, e.g., `counter_2.ltlf` and `add_request.ltlf`, and the path to the partition file, e.g., `counter_2.part` (see the `Examples` folder).
-
-For instance, the command:
+The output of `./syft4fond --help` is:
 
 ```
-./BeSyft -a counter_2.ltlf -e add_request.ltlf -p counter_2.part -s 1 -t 3 -c -i
-```
+syft4fond: a tool for reactive synthesis in FOND planning domains
+Usage: ./syft4fond [OPTIONS]
 
-Performs best-effort synthesis using the compositional algorithm, checks the existence of a dominant strategy, and executes the synthesized strategy in interactive mode.
+Options:
+  -h,--help                   Print this help message and exit
+  -d,--domain-file TEXT:FILE REQUIRED
+                              Path to PDDL domain file
+  -p,--problem-file TEXT:FILE REQUIRED
+                              Path to PDDL problem file
+  -i,--interactive BOOLEAN    Executes the synthesized strategy in interactive mode
+  -o,--out-file TEXT          Path to output .csv file. Stores:
+                              1. PDDL domain file
+                              2. PDDL problem file
+                              3. Run time (secs)
+                              4. PDDL parsing (secs)
+                              5. PDDL2DFA (secs)
+                              6. Synthesis (secs)
+                              7. Realizability (0,1)
+```
 
 # Build from source
 
-Compilation instruction using CMake (https://cmake.org/). We recommend the use of Ubuntu 20.04 LTS. Problems can occur between some libraries on which BeSyft relies and newer versions of Ubuntu (more information below).
+Compilation instruction using CMake (https://cmake.org/). We recommend using Ubuntu 22.04 LTS.
 
 ## Install the dependencies
 
@@ -129,7 +127,7 @@ sudo apt-get install libgraphviz-dev
 
 ### Syft
 
-BeSyft depends on Syft. First, install the Boost libraries.
+The project depends on Syft. First, install the Boost libraries.
 
 ```
 sudo apt-get install libboost-dev-all
@@ -156,75 +154,28 @@ Unzip the repository and move into it `cd BeSyft`
 Clone Lydia within the submodules folder.
 
 ```
-mkdir submodules
-cd submodules 
 git clone https://github.com/whitemech/lydia.git --recursive
 ```
 
-
-NOTE: Users of Ubuntu 22.04 LTS might encounter compilation errors due to incompatibilities Lydia's Catch2 library and newer versions of Ubuntu. To address it, take the following steps
-
-I. Go to https://github.com/catchorg/Catch2/tree/v2.x and get the .zip file.
-
-II. unzip the file.
-
-III. substitute in repository `submodules/lydia/third_party/Catch2` with the unzipped folder of Catch2.
-
-IV. delete any CMakeCache.txt file which may have been generated by previous compilation processes.
-
-### Building BeSyft
+### Building
 
 To build, run the following commands.
 
 ```
-cd ..
 mkdir build && cd build
 cmake ..
 make -j2
 ```
 
-## Performing the Experiments
-
-To plot the results of our experiments on counter games execute:
+## Performing Experiments
 
 ```
-cd EmpiricalResults/CounterGames
-python3 besyft_comparison.py
-python3 besyft_vs_syft.py
-python3 relative_time_cost.py
+sudo chmod "u+x" run-dfa.sh run-synthesis.sh
+./run-dfa.sh
+./run-synthesis.sh
 ```
 
-To plot the results of our experiments on random conjunction benchmarks execute
-
-```
-cd EmpiricalResults/Random
-python3 random_benchmarks.py
-```
-
-Else, to execute your own experiments on counter games run `sudo chmod "u+x" run-counters.sh run-random.sh`
-
-Then run: `./run-counters.sh` or `./run-random.sh`
-
-To plot results on counter games execute:
-
-```
-cd Benchmarks/CounterGames
-python3 besyft_comparison.py
-python3 besyft_vs_syft.py
-python3 relative_time_cost.py
-```
-
-To plot results on random conjunction benchmarks:
-
-```
-cd Benchmarks/Random
-python3 random_benchmarks.py
-```
 
 ## Contacts
 
 For any question, feedback, or suggestion, please reach to: parretti@diag.uniroma1.it
-
-## References
-
-[1] De Giacomo, Giuseppe; Parretti, Gianmarco; and Zhu, Shufang 2023. Symbolic LTLf Best-Effort Synthesis. In European Conference on Multi-Agent Systems (EUMAS). Cham: Springer Nature Switzerland, 2023. p. 228-243.
