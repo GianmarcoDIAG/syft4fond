@@ -2,6 +2,8 @@
 
 PDDL2DFA is a tool for translating PDDL into DFA. Syft4FOND is a tool for reducing FOND strong planning to symbolic DFA game synthesis.
 
+This branch implements goal decomposition invariants.
+
 # Usage
 
 The output of `./pddl2dfa --help` is:
