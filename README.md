@@ -155,6 +155,8 @@ Clone Lydia within the submodules folder.
 git clone https://github.com/whitemech/lydia.git --recursive
 ```
 
+Update permissions for files in submodules with `sudo chmod "+rwx" -R submodules`
+
 ### Building
 
 ```
