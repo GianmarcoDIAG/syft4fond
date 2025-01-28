@@ -150,6 +150,7 @@ class SymbolicStateDfa {
   static std::vector<int> state_to_binary(std::size_t state,
                                             std::size_t bit_count);
 
+  static SymbolicStateDfa domain_compose(const std::vector<SymbolicStateDfa>& dfa_vector);
 
 SymbolicStateDfa restriction(const CUDD::BDD& invalid_states) const;
 
