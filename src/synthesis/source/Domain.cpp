@@ -11,6 +11,11 @@ namespace Syft {
         const std::string& domain_pddl,
         const std::string& problem_pddl
     ): var_mgr_(var_mgr) {
+        // enables variables dynamic reordering for performance
+        var_mgr_->cudd_mgr() -> AutodynEnable();
+        // TODO. Add configuration to enable reordering reporting? 
+        // var_mgr_->cudd_mgr() -> EnableReorderingReporting();
+
         // parse domain and problem PDDL to generate output.sas file
         std::string translate_command = "./../../submodules/translate.py 0 " + domain_pddl + " " + problem_pddl;
         system(translate_command.c_str());
@@ -60,6 +65,9 @@ namespace Syft {
             Invariant inv(inv_vars.first, inv_vars.second);
             add_invariant(inv);
         }
+
+        // TODO. Add code to remove printed files.
+        system("rm grounded_invs.txt invariants_file.txt output.sas objects_file.txt predicates_file.txt");
     }
 
     void Domain::parse_sas() {
@@ -86,6 +94,10 @@ namespace Syft {
                         else if (line == "1") init_state_.push_back(0); 
                     }
                 } else if (boost::starts_with(line, "begin_operator")) { // reads action information
+                    // adds nop dummy action
+                    Action nop("nop_REACT_0", {}, {}, {}, {});
+                    actions_.insert(nop);
+                    
                     std::string action_name;
                     std::unordered_set<int> pos_preconditions, neg_preconditions, add_list, delete_list;
                     while (line != "end_operator") {
@@ -146,7 +158,6 @@ namespace Syft {
         }
 
     SymbolicStateDfa Domain::to_ltlf_and_symbolic() {
-        var_mgr_->cudd_mgr() -> AutodynEnable();
 
         std::pair<std::unordered_set<std::string>, std::unordered_set<std::string>> action_reaction_names 
             = get_action_reaction_names();
@@ -417,18 +428,18 @@ namespace Syft {
         // (vars, act, react).
 
         // enable dynamic reordering for improving performance
-        var_mgr_->cudd_mgr() -> AutodynEnable();
+        // var_mgr_->cudd_mgr() -> AutodynEnable();
 
         // construct state vars of domain symbolic dfa
         // vars_.size() are vars, with indexes from 0 to vars_.size() - 1;
         // 2 are agent- and environment-error vars
         // state var at index vars_.size() is agent-error var
         // state var at index vars_.size() + 1 is env-error var 
-        std::size_t domain_dfa_id = var_mgr_-> create_state_variables(vars_.size() + 2);
-        // std::vector<std::string> domain_dfa_vars = vars_;
-        // domain_dfa_vars.push_back("ag_err");
-        // domain_dfa_vars.push_back("env_err");
-        // std::size_t domain_dfa_id = var_mgr_->create_named_state_variables(domain_dfa_vars);
+        // std::size_t domain_dfa_id = var_mgr_-> create_state_variables(vars_.size() + 2);
+        std::vector<std::string> domain_dfa_vars = vars_;
+        domain_dfa_vars.push_back("ag_err");
+        domain_dfa_vars.push_back("env_err");
+        std::size_t domain_dfa_id = var_mgr_->create_named_state_variables(domain_dfa_vars);
         
 
         // DFA initial state is as domain's
@@ -610,8 +621,6 @@ namespace Syft {
         // define encoding for action and reaction vars
         std::unordered_map<std::string, CUDD::BDD> action_name_to_bdd;
         std::unordered_map<std::string, CUDD::BDD> reaction_name_to_bdd;
-        // std::unordered_map<std::string, std::vector<int>> action_name_to_bin;
-        // std::unordered_map<std::string, std::vector<int>> reaction_name_to_bin;
 
         // mutual exlcusion axioms for agent and environment
         CUDD::BDD agent_mutex = var_mgr_->cudd_mgr()->bddZero();
@@ -629,10 +638,19 @@ namespace Syft {
             // for (const auto& b : act_bin_id) std::cout << b;
             // std::cout << std::endl;
             CUDD::BDD act_bdd = var_mgr_->cudd_mgr()->bddOne();
+            std::string act_props = "";
             for (int i = 0; i < act_bin_id.size(); ++i) {
-                if (act_bin_id[i] == 1) act_bdd = act_bdd * var_mgr_->name_to_variable("a_"+std::to_string(i));
-                else if (act_bin_id[i] == 0) act_bdd = act_bdd * !(var_mgr_->name_to_variable("a_"+std::to_string(i)));
+                if (act_bin_id[i] == 1) {
+                    act_bdd = act_bdd * var_mgr_->name_to_variable("a_"+std::to_string(i));
+                    act_props = act_props + "a_" + std::to_string(i) + " && ";
+                }
+                else if (act_bin_id[i] == 0) {
+                    act_bdd = act_bdd * !(var_mgr_->name_to_variable("a_"+std::to_string(i)));
+                    act_props = act_props + "!a_" + std::to_string(i) + " && ";
+                }
             }
+            act_props = ("(" + act_props.substr(0, act_props.size() - 4) + ")");
+            action_name_to_props_.insert(std::make_pair(action_name, act_props));
             action_name_to_bdd.insert(std::make_pair(action_name, act_bdd));
             // action_name_to_bin.insert(std::make_pair(action_name, act_bin_id));
             agent_mutex = agent_mutex + act_bdd; // add action bdd to mutual exclusion agent axiom
@@ -644,15 +662,24 @@ namespace Syft {
         for (const auto& reaction_name : reaction_names) {
             std::vector<int> react_bin_id = to_bits(react_int_id, reaction_bits);
             CUDD::BDD react_bdd = var_mgr_->cudd_mgr()->bddOne();
+            std::string react_props = "";
             // debug
             // std::cout << "Current reaction name: " << reaction_name;
             // std::cout << ". Binary encoding: ";
             // for (const auto& b : react_bin_id) std::cout << b;
             // std::cout << std::endl;
             for (int i = 0; i < react_bin_id.size(); ++i) {
-                if (react_bin_id[i] == 1) react_bdd = react_bdd * var_mgr_->name_to_variable("r_"+std::to_string(i));
-                else if (react_bin_id[i] == 0) react_bdd = react_bdd * !(var_mgr_->name_to_variable("r_"+std::to_string(i)));
+                if (react_bin_id[i] == 1) {
+                    react_bdd = react_bdd * var_mgr_->name_to_variable("r_"+std::to_string(i));
+                    react_props = react_props + "r_" + std::to_string(i) + " && ";
+                }
+                else if (react_bin_id[i] == 0) {
+                    react_bdd = react_bdd * !(var_mgr_->name_to_variable("r_"+std::to_string(i)));
+                    react_props = react_props + "!r_" + std::to_string(i) + " && ";
+                }
             }
+            react_props = ("(" + react_props.substr(react_props.size() - 4) + ")");
+            reaction_name_to_props_.insert(std::make_pair(reaction_name, react_props));
             reaction_name_to_bdd.insert(std::make_pair(reaction_name, react_bdd));
             // reaction_name_to_bin.insert(std::make_pair(reaction_name, react_bin_id));
             env_mutex = env_mutex + react_bdd; // add reaction bdd to mutual exclusion env axiom
@@ -961,13 +988,32 @@ namespace Syft {
 
         std::cout << std::endl;
 
+        std::cout << "Action-reaction pairs: " << std::endl;
+        for (auto const& act : actions_) {act.print(); std::cout << std::endl;}
         std::cout << "Number of action-reaction pairs: " << actions_.size() << std::endl;
         std::cout << std::endl;
-        for (auto const& act : actions_) {act.print(); std::cout << std::endl;}
+
+        std::cout << "Agent actions: " << std::endl;
+        for (const auto& p : id_to_action_name_)
+            std::cout << "ID: " << p.first << ". Name: " << p.second << std::endl;
+        std::cout << "Number of agent actions: " << id_to_action_name_.size() << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Environment actions: " << std::endl;
+        for (const auto& p : id_to_reaction_name_)
+            std::cout << "ID: " << p.first << ". Name: " << p.second << std::endl;
+        std::cout << "Number of environment reactions: " << id_to_reaction_name_.size() << std::endl;
+        std::cout << std::endl;
 
         std::cout << "Number of invariants: " << invariants_.size() << std::endl;
         std::cout << std::endl;
         for (auto const& inv : invariants_) {inv.print(); std::cout << std::endl;}
+
+        // debug
+        // std::cout << "Action names to propositions: " << std::endl;
+        // for (const auto& pair : action_name_to_props_) 
+            // std::cout << pair.first << ": " << pair.second << std::endl;
+        // std::cout << std::endl;
 
         std::cout << "##########################################" << std::endl;
     }
