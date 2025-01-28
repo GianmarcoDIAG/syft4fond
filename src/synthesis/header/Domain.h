@@ -252,6 +252,9 @@ namespace Syft {
             std::map<int, std::string> id_to_action_name_;
             std::map<int, std::string> id_to_reaction_name_;
 
+            std::unordered_map<std::string, std::string> action_name_to_props_;
+            std::unordered_map<std::string, std::string> reaction_name_to_props_;
+
             std::unordered_set<Invariant, InvariantHash> invariants_;
 
             CUDD::BDD invariants_bdd_;
@@ -288,6 +291,14 @@ namespace Syft {
 
             std::map<int, std::string> get_id_to_reaction_name() const {
                 return id_to_reaction_name_;
+            }
+
+            std::unordered_map<std::string, std::string> get_action_name_to_props() const {
+                return action_name_to_props_;
+            }
+
+            std::unordered_map<std::string, std::string> get_reaction_name_to_props() const {
+                return reaction_name_to_props_;
             }
 
             std::vector<int> get_init_state() const {
