@@ -1,42 +1,13 @@
-# PDDL2DFA and Syft4FOND
+# LTLf's Syft4FOND
 
-PDDL2DFA is a tool for translating PDDL into DFA. Syft4FOND is a tool for reducing FOND strong planning to symbolic DFA game synthesis.
+This version of Syft4FOND accepts LTLf goals as inputs.  
 
 # Usage
-
-The output of `./pddl2dfa --help` is:
-
-```
-pddl2dfa: a tool to convert PDDL planning domain specifications into DFAs
-
-
-Usage: ./pddl2dfa [OPTIONS]
-
-Options:
-  -h,--help                   Print this help message and exit
-  -d,--domain-file TEXT:FILE REQUIRED
-                              Path to PDDL domain file
-  -p,--problem-file TEXT:FILE REQUIRED
-                              Path to PDDL problem file
-  -a,--alg INT REQUIRED       Conversion algorithm.
-                              	0: PDDL -> LTLf -> DFA
-                              	1: PDDL -> DFA
-  -o,--out-file TEXT          Path to output csv file. Stores:
-                              1. PDDL domain file
-                              2. PDDL problem file
-                              3. Run time (secs)
-                              4. PDDL parsing (secs)
-                              5. Size of DFA (with --alg==1 only)
-                              6. Number of actions (with --alg==1 only)
-                              7. Nodes in BDDs (with --alg==1 only)
-  -i,--interactive BOOLEAN    Executes interactively the domain DFA (with --alg==1 only)
-  -t,--print-domain BOOLEAN   Prints the domain
-```
 
 The output of `./syft4fond --help` is:
 
 ```
-syft4fond: a tool for reactive synthesis in FOND planning domains
+syft4fond-ltlf: a tool for LTLf reactive synthesis in FOND planning domains
 Usage: ./syft4fond [OPTIONS]
 
 Options:
@@ -45,7 +16,8 @@ Options:
                               Path to PDDL domain file
   -p,--problem-file TEXT:FILE REQUIRED
                               Path to PDDL problem file
-  -i,--interactive BOOLEAN    Executes the synthesized strategy in interactive mode
+  -g,--goal-file TEXT:FILE REQUIRED
+                              Path to LTLf goal file
   -o,--out-file TEXT          Path to output .csv file. Stores:
                               1. PDDL domain file
                               2. PDDL problem file
@@ -54,23 +26,8 @@ Options:
                               5. PDDL2DFA (secs)
                               6. Synthesis (secs)
                               7. Realizability (0,1)
-```
-
-To transform PDDL into DFA, you have to provide both the path to the planning domain and planning problem, e.g., `domain.pddl` and `p2.pddl` (see the `Benchmarks/BlocksWorld` folder). For instance, the command:
 
 ```
-./pddl2dfa -d domain.pddl -p p2.pddl -a 1 -t 1 -i 1
-```
-
-Constructs the DFA of the planning domain with specification `domain.pddl` and problem `p2.pddl`, using the direct PDDL to DFA algorithm, prints the domain, and executes the constructed DFA in interactive mode. 
-
-To perform synthesis in PDDL domains, you have to provide the path to both the planning domain and problem specifications. For instance, the command: 
-
-```
-./syft4fond -d domain.pddl -p p2.pddl -i 1
-```
-
-Synthesize a strategy for the FOND planning problem obtained from `domain.pddl` and `p2.pddl`, and executes the synthesized strategy in interactive mode. 
 
 # Build from source
 
@@ -181,14 +138,17 @@ cmake ..
 make -j2
 ```
 
-## Performing Experiments
+## Run Examples
+
+The folder `examples` contains some examples to run `syft4fond`.
 
 ```
-sudo chmod "u+x" run-dfa.sh run-synthesis.sh
-./run-dfa.sh
-./run-synthesis.sh
+./syft4fond -d domain.pddl -p test1.pddl -g test1.ltlf # REALIZABLE
 ```
 
+```
+./syft4fond -d domain.pddl -p test2.pddl -g test2.ltlf # UNREALIZABLE
+```
 
 ## Contacts
 
