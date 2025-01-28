@@ -147,11 +147,8 @@ std::vector<int> SymbolicStateDfa::initial_state() const {
   return initial_state_;
 }
 
-void SymbolicStateDfa::set_initial_state(const std::vector<int>& new_initial_state) {
-  initial_state_ = new_initial_state;
-}
-
 CUDD::BDD SymbolicStateDfa::initial_state_bdd() const {
+  // return state_to_bdd(var_mgr_, automaton_id_, 1); Dr. Zhu code
   return state_to_bdd(var_mgr_, automaton_id_, 0);
 }
 
@@ -213,9 +210,13 @@ SymbolicStateDfa SymbolicStateDfa::product(const std::vector<SymbolicStateDfa>& 
     if (dfa_vector.size() < 1) {
         throw std::runtime_error("Incorrect usage of automata product");
     }
+
     std::shared_ptr<VarMgr> var_mgr = dfa_vector[0].var_mgr();
+
     std::vector<std::size_t> automaton_ids;
+
     std::vector<int> initial_state;
+
     CUDD::BDD final_states = var_mgr->cudd_mgr()->bddOne();
     std::vector<CUDD::BDD> transition_function;
 
@@ -239,80 +240,6 @@ SymbolicStateDfa SymbolicStateDfa::product(const std::vector<SymbolicStateDfa>& 
     product_automaton.transition_function_ = std::move(transition_function);
 
     return product_automaton;
-}
-
-SymbolicStateDfa SymbolicStateDfa::domain_compose(std::vector<SymbolicStateDfa>& dfa_vector) {
-    // order of variables is:
-    // (F, Act, React, Z_1, ..., Z_n)
-    std::shared_ptr<VarMgr> var_mgr = dfa_vector[0].var_mgr();
-    std::vector<std::size_t> automaton_ids;
-    std::vector<int> initial_state;
-    CUDD::BDD final_states = var_mgr->cudd_mgr()->bddOne();
-    std::vector<CUDD::BDD> transition_function;
-
-    // get ID of composed DFA
-    for (int i = 0; i < dfa_vector.size(); ++i) 
-      automaton_ids.push_back(dfa_vector[i].automaton_id());
-    std::size_t composed_automaton_id = var_mgr->create_product_state_space(automaton_ids);
-
-    // initial state
-    for (const auto& dfa : dfa_vector) {
-      std::vector<int> dfa_initial_state = dfa.initial_state();
-      initial_state.insert(initial_state.end(), dfa_initial_state.begin(), dfa_initial_state.end());
-    }
-    
-    // debug
-    // std::cout << "Composed automaton initial state: " << std::flush;
-    // for (const auto& b : initial_state) std::cout << b;
-    // std::cout << ". Size: " << initial_state.size() << std::endl;;
-
-    // transition function
-    // 1. creates substitution vector
-    std::vector<CUDD::BDD> substitution_vector = var_mgr->make_compose_vector(dfa_vector[0].automaton_id(), dfa_vector[0].transition_function());
-
-    // debug
-    // std::cout << "Substitution vector for VectorCompose: " << std::flush;
-    // for (const auto& bdd : substitution_vector) std::cout << bdd << std::endl;
-    // std::cout << "Size of substitution vector: " << substitution_vector.size() << std::endl;
-
-    // 2. creates transition function 
-    // a. domain BDDs
-    for (const auto& bdd : dfa_vector[0].transition_function()) 
-      transition_function.push_back(bdd);
-    // b. intentions (composed) BDDs
-    for (int i = 1; i < dfa_vector.size(); ++i) {
-      std::vector<CUDD::BDD> intention_transition_function =
-        dfa_vector[i].transition_function();
-      for (const auto&bdd : intention_transition_function)
-        transition_function.push_back(bdd.VectorCompose(substitution_vector));
-    }
-
-    // debug
-    // std::cout << "Composed transition function size: " << transition_function.size() << std::endl;
-
-    // final states
-    // conjunction of all intentions final states
-    for (int i = 1; i < dfa_vector.size(); ++i)
-      final_states = final_states * dfa_vector[i].final_states();
-
-    std::size_t agent_error_index = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).size() - 2;
-    std::size_t env_error_index = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).size() - 1;
-
-    CUDD::BDD agent_error_bdd = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).at(agent_error_index);
-    CUDD::BDD env_error_bdd = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).at(env_error_index);
-
-    final_states = (!agent_error_bdd) * (env_error_bdd + final_states);
-
-    // debug
-    // std::cout << "Final states: " << final_states << std::endl;
-     
-    SymbolicStateDfa composed_automaton(var_mgr);
-    composed_automaton.automaton_id_ = composed_automaton_id;
-    composed_automaton.initial_state_ = std::move(initial_state);
-    composed_automaton.final_states_ = std::move(final_states);
-    composed_automaton.transition_function_ = std::move(transition_function);
-    
-    return composed_automaton;
 }
 
 SymbolicStateDfa SymbolicStateDfa::negation(const SymbolicStateDfa& dfa) {
@@ -362,5 +289,76 @@ SymbolicStateDfa SymbolicStateDfa::restriction(const CUDD::BDD& invalid_states) 
 
 }
 
-}
+SymbolicStateDfa SymbolicStateDfa::domain_compose(const std::vector<SymbolicStateDfa>& dfa_vector) {
+  // order of variables is:
+  // (F, Act, React, Z_{\varphi})
+  // i.e., goal DFA is created after domain DFA
+  std::shared_ptr<VarMgr> var_mgr = dfa_vector[0].var_mgr();
+  std::vector<std::size_t> automaton_ids;
+  std::vector<int> initial_state, initial_eval_vector;
+  CUDD::BDD final_states = var_mgr->cudd_mgr()->bddOne();
+  std::vector<CUDD::BDD> transition_function;
 
+  // get ID of composed DFA
+  for (int i = 0; i < dfa_vector.size(); ++i) 
+    automaton_ids.push_back(dfa_vector[i].automaton_id());
+  std::size_t composed_automaton_id = var_mgr->create_product_state_space(automaton_ids);
+
+  // 1. initial state
+  // a. create initial evaluation vector. Vars F
+  std::vector<int> domain_initial_state = dfa_vector[0].initial_state();
+  initial_eval_vector.insert(initial_eval_vector.end(), domain_initial_state.begin(), domain_initial_state.end());
+  // Vars Act. Can be anything; set to 11...1.
+  for (int i = 0; i < var_mgr->output_variable_count(); ++i)
+    initial_eval_vector.push_back(1);
+  // Vars React. Can be anything; set to 11...1
+  for (int i = 0; i < var_mgr->input_variable_count(); ++i)
+    initial_eval_vector.push_back(1);
+  // Vars Z_{varphi}
+  for (int i = 1; i < dfa_vector.size(); ++i) {
+    std::vector<int> goal_initial_state = dfa_vector[i].initial_state();
+    initial_eval_vector.insert(initial_eval_vector.end(), goal_initial_state.begin(), goal_initial_state.end());
+  }
+  // b. construct initial state through initial evaluation
+  initial_state.insert(initial_state.end(), domain_initial_state.begin(), domain_initial_state.end());
+  for (int i = 1; i < dfa_vector.size(); ++i)
+    for (const auto& bdd : dfa_vector[i].transition_function())
+      initial_state.push_back(bdd.Eval(initial_eval_vector.data()).IsOne());
+
+  // 2. creates substitution vector
+  std::vector<CUDD::BDD> substitution_vector = var_mgr->make_compose_vector(dfa_vector[0].automaton_id(), dfa_vector[0].transition_function());
+
+  // 3. creates transition function 
+  // a. domain BDDs
+  for (const auto& bdd : dfa_vector[0].transition_function()) 
+    transition_function.push_back(bdd);
+  // b. goal (composed) BDDs
+  for (int i = 1; i < dfa_vector.size(); ++i) {
+    std::vector<CUDD::BDD> goal_transition_function =
+      dfa_vector[i].transition_function();
+    for (const auto&bdd : goal_transition_function)
+      transition_function.push_back(bdd.VectorCompose(substitution_vector));
+  }
+
+  // 4. final states
+  for (int i = 1; i < dfa_vector.size(); ++i)
+      final_states = final_states * dfa_vector[i].final_states();
+
+  std::size_t agent_error_index = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).size() - 2;
+  std::size_t env_error_index = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).size() - 1;
+
+  CUDD::BDD agent_error_bdd = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).at(agent_error_index);
+  CUDD::BDD env_error_bdd = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).at(env_error_index);
+
+  final_states = (!agent_error_bdd) * (env_error_bdd + final_states);
+
+  // 5. construct symbolic DFA
+  SymbolicStateDfa composed_automaton(var_mgr);
+  composed_automaton.automaton_id_ = composed_automaton_id;
+  composed_automaton.initial_state_ = std::move(initial_state);
+  composed_automaton.final_states_ = std::move(final_states);
+  composed_automaton.transition_function_ = std::move(transition_function);
+  
+  return composed_automaton;
+  }
+}
