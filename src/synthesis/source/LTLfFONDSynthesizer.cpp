@@ -21,6 +21,8 @@ namespace Syft {
         running_times_.push_back(pddl2dfa_t);
         std::cout << "Done [" << pddl2dfa_t << " s]" << std::endl;
 
+        domain.print_domain();
+
         // 2. construct DFA of LTLf formula
         // i. read LTLf goal from file
         std::cout << "[syft4fond] Transforming LTLf goal into DFA..." << std::flush;
@@ -38,6 +40,18 @@ namespace Syft {
         ExplicitStateDfaMona goal_mona_dfa = ExplicitStateDfaMona::dfa_of_formula(ltlf_goal);
         ExplicitStateDfa goal_dfa = ExplicitStateDfa::from_dfa_mona(var_mgr_, goal_mona_dfa);
         SymbolicStateDfa goal_sdfa = SymbolicStateDfa::from_explicit(goal_dfa);
+
+        // LTLf synthesis with dependencies project
+        // TODO.
+        // 1. ExplicitStateDfaCUDD class. Transition function is of the form std::unordered_map<std::size_t, std::vector<std::pair<CUDD::BDD, std::size_t>>>
+        // 2. ExplicitStateDfaCUDD::from_explicit_dfa(var_mgr_, goal_dfa);
+        // Gianmarco and Shufang meet after 2 is concluded
+        // 3. DependencyComposition::get_cudd_dfa(domain, goal_cudd_dfa):
+        // 4. SymbolicStateDfa goal_sdfa = SymbolicStateDfa::from_explicit_cudd(composed_cudd_dfa);
+        // 5. SymbolicStateDfa goal_sdfa = SymbolicStateDfa::from_explicit_cudd(composed_cudd_dfa);
+        // Q1. How to handle fluents as agent variables?
+        // ExplicitStateDfaCUDD goal_cudd_dfa = ExplicitStateDfaCUDD::from_explicit_dfa(var_mgr_, goal_dfa);
+        // ExplicitStateDfaCUDD composed_cudd_dfa = DependencyComposition::get_cudd_dfa(domain, goal_cudd_dfa): 
 
         auto ltlf2dfa_t = ltlf2dfa.stop().count() / 1000.0;
         running_times_.push_back(ltlf2dfa_t);
