@@ -1,4 +1,5 @@
 #include"LTLfFONDSynthesizer.h"
+#include"String_utilities.h"
 
 namespace Syft {
     LTLfFONDSynthesizer::LTLfFONDSynthesizer(
@@ -92,7 +93,7 @@ namespace Syft {
 
         // copy is needed because of mismatch between SPOT's and Lydia's syntax
         std::string copy = goal;
-        boost::algorithm::replace_all(copy, "true", "tt");
+        replace_all(copy, "true", "tt");
     
         // parse formula with spot parser to get props
         // formula spot_intent = parse_formula(intent.c_str());

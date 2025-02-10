@@ -8,12 +8,12 @@
 
 #include<string>
 #include<fstream>
-#include<boost/algorithm/string/predicate.hpp>
-#include<boost/algorithm/string/classification.hpp>
-#include<boost/algorithm/string/split.hpp>
-#include<boost/algorithm/string/trim.hpp>
-#include<boost/algorithm/string/replace.hpp>
-#include<boost/algorithm/string.hpp>
+// #include<boost/algorithm/string/predicate.hpp>
+// #include<boost/algorithm/string/classification.hpp>
+// #include<boost/algorithm/string/split.hpp>
+// #include<boost/algorithm/string/trim.hpp>
+// #include<boost/algorithm/string/replace.hpp>
+// #include<boost/algorithm/string.hpp>
 #include<unordered_set>
 #include<cuddObj.hh>
 #include"SymbolicStateDfa.h"
