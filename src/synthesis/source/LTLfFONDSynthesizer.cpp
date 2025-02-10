@@ -1,5 +1,6 @@
 #include"LTLfFONDSynthesizer.h"
 #include"String_utilities.h"
+#include"ExplicitStateDfaCudd.h"
 
 namespace Syft {
     LTLfFONDSynthesizer::LTLfFONDSynthesizer(
@@ -40,7 +41,13 @@ namespace Syft {
         // iii. LTLf -> DFA
         ExplicitStateDfaMona goal_mona_dfa = ExplicitStateDfaMona::dfa_of_formula(ltlf_goal);
         ExplicitStateDfa goal_dfa = ExplicitStateDfa::from_dfa_mona(var_mgr_, goal_mona_dfa);
-        SymbolicStateDfa goal_sdfa = SymbolicStateDfa::from_explicit(goal_dfa);
+
+
+        ExplicitStateDfaCudd goal_dfa_cudd = ExplicitStateDfaCudd::from_explicit_dfa(var_mgr_, goal_dfa);
+        std::cout << "\n---MONA DFA: \n";
+        goal_mona_dfa.dfa_print();
+        std::cout << "\n--- CUDD DFA: \n";
+        goal_dfa_cudd.dfa_print();
 
         // LTLf synthesis with dependencies project
         // TODO.
@@ -53,7 +60,7 @@ namespace Syft {
         // Q1. How to handle fluents as agent variables?
         // ExplicitStateDfaCUDD goal_cudd_dfa = ExplicitStateDfaCUDD::from_explicit_dfa(var_mgr_, goal_dfa);
         // ExplicitStateDfaCUDD composed_cudd_dfa = DependencyComposition::get_cudd_dfa(domain, goal_cudd_dfa): 
-
+        SymbolicStateDfa goal_sdfa = SymbolicStateDfa::from_explicit(goal_dfa);
         auto ltlf2dfa_t = ltlf2dfa.stop().count() / 1000.0;
         running_times_.push_back(ltlf2dfa_t);
         std::cout << "Done [" <<  ltlf2dfa_t << " s]" << std::endl;

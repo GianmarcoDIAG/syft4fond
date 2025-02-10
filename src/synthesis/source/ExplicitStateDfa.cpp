@@ -243,6 +243,7 @@ ExplicitStateDfa ExplicitStateDfa::from_dfa_mona(std::shared_ptr<VarMgr> var_mgr
     dfa.state_count_ = state_count;
     dfa.final_states_ = std::move(final_states);
     dfa.transition_function_ = std::move(transition_function);
+    dfa.variables_names_ = std::move(variable_names);
 
     return dfa;
 
@@ -383,6 +384,10 @@ std::vector<std::size_t> ExplicitStateDfa::final_states() const {
 
 std::vector<CUDD::ADD> ExplicitStateDfa::transition_function() const {
   return transition_function_;
+}
+
+std::vector<std::string> ExplicitStateDfa::variable_names() const {
+  return variables_names_;
 }
 
 void ExplicitStateDfa::dump_dot(const std::string& filename) const {
