@@ -4,6 +4,8 @@
 
 #include "ExplicitStateDfaCudd.h"
 
+#include "lydia/utils/cudd.hpp"
+
 namespace Syft {
   ExplicitStateDfaCudd::ExplicitStateDfaCudd(std::shared_ptr<VarMgr> var_mgr)
     : var_mgr_(std::move(var_mgr))
@@ -141,7 +143,7 @@ namespace Syft {
     std::cout << "DFA with free variables: ";
 
     for (int i = 0; i < variable_names().size(); i++) {
-      std::cout << variable_names()[i] << " ";
+      std::cout << variable_names()[i] << " " << var_mgr()->name_to_variable(variable_names()[i]);
     }
 
     std::cout << "\nInitial state: " << initial_state()
@@ -162,10 +164,26 @@ namespace Syft {
 
     for (int i = 0; i < state_count(); i++) {
       std::vector<std::pair<CUDD::BDD, std::size_t>> transitions = transition_function()[i];
-      std::cout << "State " << i << ": \n";
       for (auto transition : transitions) {
+
         CUDD::BDD condition = transition.first;
-        std::cout << condition << " -> state " << transition.second << "\n";
+        int var_num = Cudd_ReadSize(condition.manager());
+        assert(var_num == var_mgr()->get_index_to_name().size());
+        std::vector<std::vector<uint8_t>> cubes= whitemech::lydia::get_cubes(condition, var_num);
+        for(auto cube : cubes) {
+          std::cout << "State: " << i << ": ";
+          for (auto var_name: variable_names()) {
+            int var_index = var_mgr()->name_to_variable(var_name).NodeReadIndex();
+            int var_value = static_cast<int>(cube[var_index]);
+            if (var_value == 2) {
+              std::cout << "X";
+            } else {
+              std::cout << var_value;
+            }
+          }
+          std::cout << " -> state " << transition.second << "\n";
+        }
+
       }
     }
   }
