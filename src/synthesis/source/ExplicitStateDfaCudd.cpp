@@ -81,58 +81,6 @@ namespace Syft {
     return var_mgr()->cudd_mgr()->nodeCount(allBDDs);
   }
 
-  // void printPaths(std::shared_ptr<VarMgr> var_mgr, const CUDD::BDD& node, std::vector<char>& path, int level, std::vector<unsigned int> var_order) {
-  //   std::cout << "process " << node << "\n";
-  //   var_mgr->dump_dot(node.Add(), "node.dot");
-  //   if (node.IsZero() || node.IsOne()) {
-  //     while (level < var_order.size()) {
-  //       path[var_order[level]] = 'X';
-  //       level++;
-  //     }
-  //     if (node.IsOne()) {
-  //       for (char val : path) {
-  //         std::cout << val;
-  //       }
-  //     }
-  //     return;
-  //   }
-  //
-  //   int var_index = node.NodeReadIndex();  // Get variable index
-  //   auto it = std::find(var_order.begin(), var_order.end(), var_index);
-  //   assert (it != var_order.end());
-  //   int prop_index = std::distance(var_order.begin(), it); // Get the index
-  //
-  //   // Copy current path and extend it with the new variable
-  //   std::vector<char> path_low = path, path_high = path;
-  //   path_high[prop_index] = '1'; // High branch (true)
-  //   path_low[prop_index] = '0';  // Low branch (false)
-  //
-  //   std::string var_name = var_mgr->index_to_name(var_index);
-  //   CUDD::BDD high_branch, low_branch;
-  //   if (Cudd_IsComplement(node.getNode())) {
-  //     high_branch = !CUDD::BDD(*var_mgr->cudd_mgr(),Cudd_Regular(Cudd_T(node.getNode())));
-  //     low_branch = !CUDD::BDD(*var_mgr->cudd_mgr(),Cudd_Regular(Cudd_E(node.getNode())));
-  //   } else {
-  //     high_branch = CUDD::BDD(*var_mgr->cudd_mgr(),Cudd_T(node.getNode()));
-  //     low_branch = CUDD::BDD(*var_mgr->cudd_mgr(),Cudd_E(node.getNode()));
-  //   }
-  //
-  //   // DdNode *high_node = Cudd_T(node.getNode());
-  //   // DdNode *low_node = Cudd_E(node.getNode());
-  //   //
-  //   //
-  //   // CUDD::BDD high_branch(*var_mgr->cudd_mgr(),high_node);
-  //   // CUDD::BDD low_branch(*var_mgr->cudd_mgr(),low_node);
-  //
-  //   std::cout << high_branch << std::endl;
-  //   var_mgr->dump_dot(high_branch.Add(), "high.dot");
-  //   std::cout << low_branch << std::endl;
-  //   var_mgr->dump_dot(low_branch.Add(), "low.dot");
-  //
-  //   printPaths(var_mgr, high_branch, path_high, level + 1, var_order);
-  //   printPaths(var_mgr, low_branch, path_low, level + 1, var_order);
-  // }
-
   void ExplicitStateDfaCudd::dfa_print() const {
     std::cout << "Number of states " +
                          std::to_string(initial_state())
