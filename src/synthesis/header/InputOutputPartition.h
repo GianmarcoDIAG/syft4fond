@@ -13,6 +13,7 @@ class InputOutputPartition {
 private:
   
   static std::runtime_error bad_file_format_exception(std::size_t line_number);
+  static std::runtime_error error_open_file_exception(std::string filename);
   
 public:
   

@@ -17,7 +17,7 @@
 #include <lydia/to_dfa/core.hpp>
 #include <lydia/to_dfa/strategies/compositional/base.hpp>
 #include <lydia/utils/print.hpp>
-#include "lydia/logic/to_ldlf.hpp"
+// #include "lydia/logic/to_ldlf.hpp"
 
 namespace Syft
 {
@@ -155,13 +155,13 @@ namespace Syft
         auto parsed_formula = driver->get_result();
 
         // logger.info("Apply no-empty semantics.");
-        // auto context = driver->context;
-        // auto end = context->makeLdlfEnd();
-        // auto not_end = context->makeLdlfNot(end);
-        // parsed_formula = context->makeLdlfAnd({parsed_formula, not_end});
+        auto context = driver->context;
+        auto end = context->makeLdlfEnd();
+        auto not_end = context->makeLdlfNot(end);
+        parsed_formula = context->makeLdlfAnd({parsed_formula, not_end});
         
-        auto ltl_formula = std::static_pointer_cast<const whitemech::lydia::LTLfFormula>(parsed_formula);
-        auto ldlf_parsed_formula = whitemech::lydia::to_ldlf(*ltl_formula);
+        // auto ltl_formula = std::static_pointer_cast<const whitemech::lydia::LTLfFormula>(parsed_formula);
+        // auto ldlf_parsed_formula = whitemech::lydia::to_ldlf(*ltl_formula);
 
         auto dfa_strategy = whitemech::lydia::CompositionalStrategy();
         auto translator = whitemech::lydia::Translator(dfa_strategy);
@@ -172,8 +172,8 @@ namespace Syft
         // std::cout << "Transforming LTLf to DFA...";
         auto t_dfa_start = std::chrono::high_resolution_clock::now();
 
-	    // auto my_dfa = translator.to_dfa(*parsed_formula);
-	    auto my_dfa = translator.to_dfa(*ldlf_parsed_formula);
+	    auto my_dfa = translator.to_dfa(*parsed_formula);
+	    // auto my_dfa = translator.to_dfa(*ldlf_parsed_formula);
 
         auto my_mona_dfa =
             std::dynamic_pointer_cast<whitemech::lydia::mona_dfa>(my_dfa);

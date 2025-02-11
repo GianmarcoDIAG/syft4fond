@@ -24,6 +24,7 @@ class ExplicitStateDfa {
   size_t state_count_;
   std::vector<size_t> final_states_;
   std::vector<CUDD::ADD> transition_function_;
+  std::vector<std::string> variables_names_;
 
   ExplicitStateDfa(std::shared_ptr<VarMgr> var_mgr);
 
@@ -120,6 +121,8 @@ class ExplicitStateDfa {
    * The ADD in index \a i represents the transition function for state \a i.
    */
   std::vector<CUDD::ADD> transition_function() const;
+
+  std::vector<std::string> variable_names() const;
 
   /**
    * \brief Saves the transition function of the DFA in a .dot file.

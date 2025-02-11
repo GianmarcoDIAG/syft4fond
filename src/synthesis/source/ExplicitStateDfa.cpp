@@ -2,10 +2,11 @@
 
 #include <algorithm>
 #include <fstream>
+#include"String_utilities.h"
 
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/trim.hpp>
+// #include <boost/algorithm/string/classification.hpp>
+// #include <boost/algorithm/string/split.hpp>
+// #include <boost/algorithm/string/trim.hpp>
 
 namespace Syft {
 
@@ -27,7 +28,7 @@ std::vector<std::string> ExplicitStateDfa::read_mona_line(
   std::getline(in, line);
 
   std::vector<std::string> substr;
-  boost::split(substr, line, boost::is_any_of(":"));
+  substr = split_any_of(line, ":");
 
   if (substr.size() != 2) {
     throw bad_file_format_exception(line_number);
@@ -46,8 +47,8 @@ std::vector<std::string> ExplicitStateDfa::read_variable_names(
   }
 
   std::vector<std::string> variables;
-  boost::trim(substr[1]); // remove leading and trailing whitespace
-  boost::split(variables, substr[1], boost::is_any_of(" "));
+  trim(substr[1]); // remove leading and trailing whitespace
+  variables = split_any_of(substr[1], " ");
   
   return variables;
 }
@@ -78,8 +79,8 @@ std::vector<std::size_t> ExplicitStateDfa::read_final_states(
   }
 
   std::vector<std::string> tokens;
-  boost::trim(substr[1]); // remove leading and trailing whitespace
-  boost::split(tokens, substr[1], boost::is_any_of(" "));
+  trim(substr[1]); // remove leading and trailing whitespace
+  tokens = split(substr[1], " ");
 
   std::vector<std::size_t> final_states;
 
@@ -102,8 +103,8 @@ std::vector<std::size_t> ExplicitStateDfa::read_behaviour(
   }
 
   std::vector<std::string> tokens;
-  boost::trim(substr[1]); // remove leading and trailing whitespace
-  boost::split(tokens, substr[1], boost::is_any_of(" "));
+  trim(substr[1]); // remove leading and trailing whitespace
+  tokens = split_any_of(substr[1], " ");
 
   std::vector<std::size_t> behaviour;
 
@@ -134,8 +135,8 @@ std::vector<std::vector<int>> ExplicitStateDfa::read_node_table(
     ++line_number;
 
     std::vector<std::string> tokens;
-    boost::trim(line); // remove leading and trailing whitespace
-    boost::split(tokens, line, boost::is_any_of(" "));
+    trim(line); // remove leading and trailing whitespace
+    tokens = split_any_of(line, " ");
 
     std::vector<int> node_triple;
     std::transform(tokens.begin(), tokens.end(),
@@ -242,6 +243,7 @@ ExplicitStateDfa ExplicitStateDfa::from_dfa_mona(std::shared_ptr<VarMgr> var_mgr
     dfa.state_count_ = state_count;
     dfa.final_states_ = std::move(final_states);
     dfa.transition_function_ = std::move(transition_function);
+    dfa.variables_names_ = std::move(variable_names);
 
     return dfa;
 
@@ -382,6 +384,10 @@ std::vector<std::size_t> ExplicitStateDfa::final_states() const {
 
 std::vector<CUDD::ADD> ExplicitStateDfa::transition_function() const {
   return transition_function_;
+}
+
+std::vector<std::string> ExplicitStateDfa::variable_names() const {
+  return variables_names_;
 }
 
 void ExplicitStateDfa::dump_dot(const std::string& filename) const {

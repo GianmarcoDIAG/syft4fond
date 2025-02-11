@@ -2,7 +2,7 @@
 
 #include <cstring>
 #include <stdexcept>
-#include <boost/algorithm/string.hpp>
+// #include <boost/algorithm/string.hpp>
 #include <iostream>
 
 namespace Syft {

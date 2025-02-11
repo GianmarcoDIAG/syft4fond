@@ -152,7 +152,7 @@ class SymbolicStateDfa {
 
   static SymbolicStateDfa domain_compose(const std::vector<SymbolicStateDfa>& dfa_vector);
 
-SymbolicStateDfa restriction(const CUDD::BDD& invalid_states) const;
+  SymbolicStateDfa restriction(const CUDD::BDD& invalid_states) const;
 
 }; 
 } 
