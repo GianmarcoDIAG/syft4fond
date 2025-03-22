@@ -40,11 +40,11 @@ int main(int argc, char** argv) {
         app.add_option("-g,--goal-file", goal_file, "Path to LTLf goal file") ->
         required() -> check(CLI::ExistingFile);
 
-    // CLI::Option* interactive_opt =
-        // app.add_option("-i,--interactive", interactive, "Executes the synthesized strategy in interactive mode");
-
     CLI::Option* out_file_opt =
         app.add_option("-o,--out-file", out_file, "Path to output .csv file. Stores:\n1. PDDL domain file\n2. PDDL problem file\n3. Run time (secs)\n4. PDDL parsing (secs)\n5. PDDL2DFA (secs)\n6. Synthesis (secs)\n7. Realizability (0,1)");
+
+    CLI::Option* interactive_opt =
+        app.add_option("-i,--interactive", interactive, "Executes interactively the domain DFA");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         problem_file,
         goal_file);
 
-    Syft::SynthesisResult result = synthesizer.run();
+    Syft::SynthesisResult result = synthesizer.run(interactive);
 
     auto running_times = synthesizer.get_running_times();
     auto run_time = sumVec(running_times);

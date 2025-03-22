@@ -118,6 +118,7 @@ std::size_t VarMgr::create_named_state_variables(const std::vector<std::string>&
     name_to_variable_[vars[i]] = new_state_var;
     index_to_name_[new_state_var.NodeReadIndex()] = vars[i]; 
   }
+  std::cout << vars.size() << std::endl;
 
   state_variable_count_ += vars.size();
   return automaton_id;
@@ -137,6 +138,7 @@ std::size_t VarMgr::create_state_variables(std::size_t variable_count) {
     
     state_variables_[automaton_id].push_back(new_state_variable);
   }
+  std::cout << variable_count << std::endl;
 
   state_variable_count_ += variable_count;
 
@@ -272,7 +274,7 @@ std::vector<int> VarMgr::make_eval_vector(
 
 std::vector<CUDD::BDD> VarMgr::make_compose_vector(
     std::size_t automaton_id, const std::vector<CUDD::BDD>& state_bdds) const {
-  std::vector<CUDD::BDD> compose_vector(total_variable_count(),
+  std::vector<CUDD::BDD> compose_vector(total_state_variable_count(),
 					mgr_->bddZero());
 
   // All named variables get mapped to the variable itself

@@ -4,6 +4,11 @@
 #include "CoOperativeDfaGameSynthesizer.h"
 
 namespace Syft {
+ struct MaxSet{
+  CUDD::BDD deferring_strategy;
+  CUDD::BDD nondeferring_strategy;
+ };
+
 
 /**
  * \brief A synthesizer for cooperative reachability game given as a symbolic-state DFA.
@@ -51,6 +56,8 @@ class CoOperativeReachabilitySynthesizer : public CoOperativeDfaGameSynthesizer 
   * \return CUDD::BDD representing cooperatively winning states with corresponding cooperatively winning moves
  */
   CUDD::BDD get_winning_moves() const;
+
+ MaxSet AbstractMaxSet(SynthesisResult result) const;
 };
 
 }

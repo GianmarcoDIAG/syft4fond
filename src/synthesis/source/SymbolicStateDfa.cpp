@@ -300,10 +300,9 @@ SymbolicStateDfa SymbolicStateDfa::domain_compose(const std::vector<SymbolicStat
   std::vector<CUDD::BDD> transition_function;
 
   // get ID of composed DFA
-  for (int i = 0; i < dfa_vector.size(); ++i) 
-    automaton_ids.push_back(dfa_vector[i].automaton_id());
+  for (int i = 0; i < dfa_vector.size(); ++i){
+    automaton_ids.push_back(dfa_vector[i].automaton_id());std::cout << dfa_vector[i].automaton_id() << std::endl;}
   std::size_t composed_automaton_id = var_mgr->create_product_state_space(automaton_ids);
-
   // 1. initial state
   // a. create initial evaluation vector. Vars F
   std::vector<int> domain_initial_state = dfa_vector[0].initial_state();
@@ -350,7 +349,7 @@ SymbolicStateDfa SymbolicStateDfa::domain_compose(const std::vector<SymbolicStat
   CUDD::BDD agent_error_bdd = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).at(agent_error_index);
   CUDD::BDD env_error_bdd = var_mgr->get_state_variables(dfa_vector[0].automaton_id()).at(env_error_index);
 
-  final_states = (!agent_error_bdd) * (env_error_bdd + final_states);
+  final_states = (!agent_error_bdd) * (!env_error_bdd) *  (final_states);
 
   // 5. construct symbolic DFA
   SymbolicStateDfa composed_automaton(var_mgr);

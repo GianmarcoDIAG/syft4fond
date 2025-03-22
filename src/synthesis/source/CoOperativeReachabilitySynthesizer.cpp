@@ -23,9 +23,27 @@ SynthesisResult CoOperativeReachabilitySynthesizer::run() {
 
     CUDD::BDD new_winning_states = project_into_states(new_winning_moves);
 
-    if (includes_initial_state(new_winning_states)) {
+    if (new_winning_states == winning_states) {
+        if (includes_initial_state(new_winning_states)) {
+            result.realizability = true;
+            result.winning_states = new_winning_states;
+            result.winning_moves = new_winning_moves;
+            result.transducer = nullptr;
+        } else {
+            result.realizability = false;
+            result.winning_states = new_winning_states;
+            result.winning_moves = new_winning_moves;
+            result.transducer = nullptr;
+        }
+        return result;
+    }
+    winning_moves = new_winning_moves;
+    winning_states = new_winning_states;
+
+    /*if (includes_initial_state(new_winning_states)) {
         result.realizability = true;
         result.winning_states = new_winning_states;
+        result.winning_moves = new_winning_moves;
         std::unordered_map<int, CUDD::BDD> strategy = synthesize_strategy(
               new_winning_moves);
         result.transducer = std::make_unique<Transducer>(
@@ -38,6 +56,7 @@ SynthesisResult CoOperativeReachabilitySynthesizer::run() {
     } else if (new_winning_states == winning_states) {
         result.realizability = false;
         result.winning_states = new_winning_states;
+        result.winning_moves = new_winning_moves;
         // result.transducer = nullptr;
         std::unordered_map<int, CUDD::BDD> strategy = synthesize_strategy(
           new_winning_moves);
@@ -49,7 +68,7 @@ SynthesisResult CoOperativeReachabilitySynthesizer::run() {
         return result;
     }
     winning_moves = new_winning_moves;
-    winning_states = new_winning_states;
+    winning_states = new_winning_states;*/
   }
 
 }
@@ -61,5 +80,12 @@ CUDD::BDD CoOperativeReachabilitySynthesizer::get_winning_states() const {
  CUDD::BDD CoOperativeReachabilitySynthesizer::get_winning_moves() const {
       return winning_moves_;
  }
+
+ MaxSet CoOperativeReachabilitySynthesizer::AbstractMaxSet(SynthesisResult result) const {
+        MaxSet maxset;
+        maxset.nondeferring_strategy = result.winning_moves;
+        maxset.deferring_strategy = result.winning_moves | (result.winning_states & preimage(result.winning_states));
+        return maxset;
+}
 
 }

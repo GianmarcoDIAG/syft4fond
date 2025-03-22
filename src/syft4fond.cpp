@@ -4,8 +4,8 @@
 #include<istream>
 #include<memory>
 #include<CLI/CLI.hpp>
-#include"VarMgr.h"
-#include"FONDSynthesizer.h"
+#include"synthesis/header/VarMgr.h"
+#include"synthesis/header/FONDSynthesizer.h"
 using namespace std;
 
 double sumVec(const std::vector<double>& v) 
