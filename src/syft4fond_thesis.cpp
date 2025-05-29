@@ -10,6 +10,9 @@
 #include<CLI/CLI.hpp>
 #include"VarMgr.h"
 #include"LTLfFONDDomain.h"
+#include <csignal>
+#include <unistd.h>
+
 using namespace std;
 
 double sumVec(const std::vector<double>& v)
@@ -17,6 +20,11 @@ double sumVec(const std::vector<double>& v)
     double sum = 0;
     for (const auto& d: v) sum += d;
     return sum;
+}
+
+void handleTimeout(int signal) {
+    std::cerr << "Execution timed out after 20 minutes!" << std::endl;
+    std::_Exit(EXIT_FAILURE); // Force exit
 }
 
 int main(int argc, char** argv) {
@@ -56,7 +64,12 @@ int main(int argc, char** argv) {
         problem_file,
         goal_file);
 
+    signal(SIGALRM, handleTimeout); // Register signal handler
+    alarm(600); // Set alarm for 600 seconds (10 minutes)
+
     Syft::SynthesisResult result = synthesizer.run(interactive);
+
+    alarm(0);
 
     auto running_times = synthesizer.get_running_times();
     auto run_time = sumVec(running_times);

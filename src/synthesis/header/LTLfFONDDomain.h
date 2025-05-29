@@ -20,6 +20,7 @@
 #include"spotparser.h"
 #include"CoOperativeReachabilitySynthesizer.h"
 #include"Stopwatch.h"
+#include"LTLfFONDDomainExposed.h"
 #include<unordered_set>
 #include <random>
 
@@ -295,6 +296,7 @@ namespace Syft {
             void print_domain() const;
 
             void interactive(const Domain& domain, const SymbolicStateDfa& product, const MaxSet& max_set) const;
+            void interactiveExposed(const Domain& domain, SymbolicStateDfa& product, const MaxSet& max_set) const;
 
             CUDD::BDD get_invariants_bdd() const {
                 return invariants_bdd_;

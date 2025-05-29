@@ -360,4 +360,12 @@ SymbolicStateDfa SymbolicStateDfa::domain_compose(const std::vector<SymbolicStat
   
   return composed_automaton;
   }
+
+  void SymbolicStateDfa::setState(std::vector<int> new_state) {
+    initial_state_ = std::move(new_state);
+  }
+
+  std::vector<int> SymbolicStateDfa::getState() {
+    return initial_state_;
+  }
 }

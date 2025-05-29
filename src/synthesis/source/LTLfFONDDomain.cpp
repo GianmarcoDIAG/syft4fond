@@ -158,7 +158,8 @@ namespace Syft {
         Syft::MaxSet maxSet = synthesizer.AbstractMaxSet(std::move(result));
         std::cout << "Done [" << synthesis_t << " s]" <<  std::endl;
 
-        if(is_interactive) interactive(domain, dfa_game, maxSet);
+        //if(is_interactive) interactive(domain, dfa_game, maxSet);
+        if(is_interactive) interactiveExposed(domain, dfa_game, maxSet);
 
         return result;
     }
@@ -778,6 +779,55 @@ namespace Syft {
             }
             state = new_state;
             std::cout << std::endl;
+        }
+        return;
+    }
+
+    void LTLfFONDDomain::interactiveExposed(
+        const Domain& domain,
+        SymbolicStateDfa& product,
+        const MaxSet& max_set
+    ) const {
+        //domain.print_domain();
+        LTLfFONDDomainExposed* domainExp = new LTLfFONDDomainExposed(var_mgr_, &product, &domain, &max_set);
+
+        int number_of_fluents = domain.get_vars().size() + 2;
+        std::vector<std::string> vars_ = domain.get_vars();
+        std::size_t agent_error_index = vars_.size();
+        CUDD::BDD agent_error_bdd = product.transition_function()[agent_error_index];
+        bool is_action_valid = false;
+
+        std::vector<int> valid_actions;
+        auto id_to_action_name = domain.get_id_to_action_name();
+        int act_id;
+
+        while(true) {
+          is_action_valid = false;
+          std::vector<int> state = product.initial_state();
+          while(!is_action_valid) {
+            valid_actions.clear();
+            std::cout << "[pddl2dfa] Valid actions:" << std::endl;
+            for(const auto& id_act : id_to_action_name) {
+                std::vector<int> check_action;
+                check_action.insert(check_action.end(), state.begin(), state.begin() + number_of_fluents);
+                for (const auto& b : to_bits(id_act.first, var_mgr_->output_variable_count())) check_action.push_back(b);
+
+                if(!agent_error_bdd.Eval(check_action.data()).IsOne()) {
+                    valid_actions.push_back(id_act.first);
+                    std::cout << "ID: " << id_act.first << " - Action: " << id_act.second << std::endl;
+                }
+            }
+            std::cout << "[pddl2dfa] Insert ID of agent action: ";
+            std::cin >> act_id;
+            if(std::count(valid_actions.begin(), valid_actions.end(), act_id) > 0) {
+                is_action_valid = true;
+                domainExp->execute(act_id);
+                //for (const auto& b : to_bits(act_id, var_mgr_->output_variable_count())) transition.push_back(b);
+            } else {
+                std::cout << "[pddl2dfa] Chosen Action is not valid." << std::endl;
+            }
+            std::cout << std::endl;
+          }
         }
         return;
     }
