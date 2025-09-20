@@ -100,7 +100,7 @@ namespace Syft {
 
         // copy is needed because of mismatch between SPOT's and Lydia's syntax
         std::string copy = goal;
-        replace_all(copy, "true", "tt");
+        // replace_all(copy, "true", "tt");
     
         // parse formula with spot parser to get props
         // formula spot_intent = parse_formula(intent.c_str());
@@ -109,7 +109,7 @@ namespace Syft {
 
         // perform substituion
         for (auto& p : props) {
-            if (p == "tt") continue;
+            if (p == "true") continue;
             if (var_name_to_bdd.find(p) == var_name_to_bdd.end()) { // p is not a fluent
                 auto it = action_names_to_props.find(p);
                 if (it != action_names_to_props.end()) {

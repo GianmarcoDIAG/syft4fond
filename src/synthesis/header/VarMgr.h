@@ -4,6 +4,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 #include "cuddObj.hh"
 
@@ -35,6 +36,11 @@ class VarMgr {
    * \brief Prints information stored in VarMgr
   */
   void print_varmgr() const;
+
+  /**
+   * \brief returns a string containing the partitioning of vars
+   */
+  std::string get_part() const;
 
   /**
    * @brief Returns mapping of int IDs to variable names

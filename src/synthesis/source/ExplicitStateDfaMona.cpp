@@ -17,7 +17,7 @@
 #include <lydia/to_dfa/core.hpp>
 #include <lydia/to_dfa/strategies/compositional/base.hpp>
 #include <lydia/utils/print.hpp>
-// #include "lydia/logic/to_ldlf.hpp"
+#include "lydia/logic/to_ldlf.hpp"
 
 namespace Syft
 {
@@ -142,38 +142,26 @@ namespace Syft
 
     ExplicitStateDfaMona ExplicitStateDfaMona::dfa_of_formula(const std::string &formula)
     {
-        whitemech::lydia::Logger logger("main");
-        whitemech::lydia::Logger::level(whitemech::lydia::LogLevel::info);
-
         std::shared_ptr<whitemech::lydia::AbstractDriver> driver;
         driver = std::make_shared<whitemech::lydia::parsers::ltlf::LTLfDriver>();
         std::stringstream formula_stream(formula);
-        // logger.info("Parsing {}", formula);
-        // std::cout << "Parsing " << formula << "..." <<  std::endl;
-        driver->parse(formula_stream);
-        // std::cout << "DONE!" << std::endl;
-        auto parsed_formula = driver->get_result();
 
-        // logger.info("Apply no-empty semantics.");
+        driver->parse(formula_stream);
+        auto parsed_formula = driver->get_result();
+        auto ltlf_parsed_formula =
+            std::static_pointer_cast<const whitemech::lydia::LTLfFormula>(parsed_formula);
+
+        auto ldlf_parsed_formula = whitemech::lydia::to_ldlf(*ltlf_parsed_formula);
+
         auto context = driver->context;
         auto end = context->makeLdlfEnd();
         auto not_end = context->makeLdlfNot(end);
-        parsed_formula = context->makeLdlfAnd({parsed_formula, not_end});
-        
-        // auto ltl_formula = std::static_pointer_cast<const whitemech::lydia::LTLfFormula>(parsed_formula);
-        // auto ldlf_parsed_formula = whitemech::lydia::to_ldlf(*ltl_formula);
+        ldlf_parsed_formula = context->makeLdlfAnd({ldlf_parsed_formula, not_end});
 
         auto dfa_strategy = whitemech::lydia::CompositionalStrategy();
         auto translator = whitemech::lydia::Translator(dfa_strategy);
 
-        auto t_start = std::chrono::high_resolution_clock::now();
-
-        // logger.info("Transforming to DFA...");
-        // std::cout << "Transforming LTLf to DFA...";
-        auto t_dfa_start = std::chrono::high_resolution_clock::now();
-
-	    auto my_dfa = translator.to_dfa(*parsed_formula);
-	    // auto my_dfa = translator.to_dfa(*ldlf_parsed_formula);
+        auto my_dfa = translator.to_dfa(*ldlf_parsed_formula);
 
         auto my_mona_dfa =
             std::dynamic_pointer_cast<whitemech::lydia::mona_dfa>(my_dfa);
@@ -181,12 +169,6 @@ namespace Syft
         DFA *d = dfaCopy(my_mona_dfa->dfa_);
 
         ExplicitStateDfaMona exp_dfa(d, my_mona_dfa->names);
-        // std::cout << "DONE!" << std::endl;
-
-        // std::cout << "Number of states " +
-        //                  std::to_string(exp_dfa.get_nb_variables())
-        //           << "\n";
-
         return exp_dfa;
     }
 

@@ -273,6 +273,10 @@ namespace Syft {
                 const std::string& problem_file
             );
 
+            std::shared_ptr<VarMgr> get_mgr() const {
+                return var_mgr_;
+            }
+
             std::vector<std::string> get_vars() const {
                 return vars_;
             }
@@ -316,6 +320,8 @@ namespace Syft {
             SymbolicStateDfa to_symbolic();
 
             SymbolicStateDfa to_ltlf_and_symbolic();
+
+            std::string domain_to_ltlf();
 
             void print_domain() const;
 

@@ -1,3 +1,6 @@
 build/*
 .vscode/*
 history.odt
+.~lock.history.odt#
+submodules/__pycache__/*
+submodules/pddl/__pycache__/*

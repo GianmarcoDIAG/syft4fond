@@ -26,8 +26,38 @@ Options:
                               5. PDDL2DFA (secs)
                               6. Synthesis (secs)
                               7. Realizability (0,1)
+``` 
+
+The output of pddl2ltlf --help is the following:
 
 ```
+pddl2ltlf: a tool to convert PDDL planning domain specifications into LTLf
+Usage: ./pddl2ltlf [OPTIONS]
+
+Options:
+  -h,--help                   Print this help message and exit
+  -d,--domain-file TEXT:FILE REQUIRED
+                              Path to PDDL domain file
+  -p,--problem-file TEXT:FILE REQUIRED
+                              Path to PDDL problem file
+  -g,--goal-file TEXT:FILE REQUIRED
+                              Path to LTLf goal file
+  -l,--ltlf-file TEXT         Path to output LTLf formula file
+  -t,--part-file TEXT         Path to output partition file
+```
+
+To convert PDDL specification into LTLf, you should use a command like this:
+
+```
+/pddl2ltlf -d domain.pddl -p test1.pddl -g test1.ltlf -l formula.ltlf -t partition.part
+```
+
+Where:
+- `domain.pddl` is the file that contains the PDDL specification of the domain using a first-order syntax;
+- `test1.pddl` is the file that contains the instance of the PDDL specification, i.e., the objects of the problem;
+- `test1.ltlf` contains the LTLf goal;
+- `formula.ltlf` is the output file that contains of the formula that contains both PDDL and LTLf;
+- `partition.part` is the output file that contains the partitioning of the variables of the problem.
 
 # Build from source
 

@@ -45,6 +45,17 @@ void VarMgr::print_varmgr() const {
   }
 }
 
+std::string VarMgr::get_part() const {
+  std::string input_vars = ".inputs: ";
+  std::string output_vars = ".outputs: ";
+  for (const auto& p: get_name_to_variable()) {
+    if (is_input_variable(p.first)) input_vars += (p.first + " ");
+    else output_vars += (p.first + " ");
+  }
+  std::string part_str = input_vars + "\n" + output_vars;
+  return part_str;
+}
+
 std::unordered_map<int, std::string> VarMgr::get_index_to_name() const {
   return index_to_name_;
 }

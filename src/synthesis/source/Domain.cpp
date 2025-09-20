@@ -158,6 +158,21 @@ namespace Syft {
             // print_domain(); 
         }
 
+    std::string Domain::domain_to_ltlf() {
+        std::pair<std::unordered_set<std::string>, std::unordered_set<std::string>> action_reaction_names 
+            = get_action_reaction_names();
+
+        std::pair<std::string, std::string> agent_env_mutex_axioms = get_ltlf_action_reaction_vars(action_reaction_names.first, action_reaction_names.second);
+
+        std::string ltlf_init = get_ltlf_init(); // gets initial state
+        std::string ltlf_trans = get_ltlf_transition_function(agent_env_mutex_axioms.first, agent_env_mutex_axioms.second); // gets frame axiom
+        // std::string ltlf_goal = get_ltlf_goal(); // gets goal
+
+        std::string domain_ltlf = "(((" + ltlf_init + ") && (" + ltlf_trans + "))";
+
+        return domain_ltlf;
+    }
+
     SymbolicStateDfa Domain::to_ltlf_and_symbolic() {
 
         std::pair<std::unordered_set<std::string>, std::unordered_set<std::string>> action_reaction_names 
